@@ -1,14 +1,13 @@
-// File: store/auth-store.ts
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { User, UserRole } from "@/types"; // Ensure types are imported
-import { supabase } from "@/lib/supabase"; // Ensure supabase client is imported
+import { User, UserRole } from "@/types";
+import { supabase } from "@/lib/supabase";
 import { Session } from "@supabase/supabase-js";
 
 interface AuthState {
   user: User | null;
-  session: Session | null; // Store session info as well
+  session: Session | null;
   isAuthenticated: boolean;
   isLoading: boolean;
   error: string | null;
@@ -19,22 +18,19 @@ interface AuthState {
   clearError: () => void;
   signInWithGoogle: () => Promise<void>;
   signInWithFacebook: () => Promise<void>;
-  _setUserAndSession: (user: User | null, session: Session | null) => void; // Helper
+  _setUserAndSession: (user: User | null, session: Session | null) => void;
 }
 
-// Helper function to fetch user profile
 const fetchUserProfile = async (userId: string): Promise<User | null> => {
   try {
     const { data: profile, error } = await supabase
-      .from('users') // Ensure 'users' is your profile table name
+      .from('users')
       .select('*')
       .eq('id', userId)
       .single();
 
     if (error) {
       console.error("Error fetching profile:", error.message);
-      // Don't throw here, allow login/signup to potentially proceed
-      // but maybe clear auth state if profile is essential and missing?
       return null;
     }
     return profile as User | null;
@@ -44,14 +40,13 @@ const fetchUserProfile = async (userId: string): Promise<User | null> => {
   }
 };
 
-
 export const useAuthStore = create<AuthState>()(
   persist(
     (set, get) => ({
       user: null,
       session: null,
       isAuthenticated: false,
-      isLoading: true, // Start loading initially until checkSession completes
+      isLoading: true,
       error: null,
 
       _setUserAndSession: (user, session) => {
@@ -65,7 +60,6 @@ export const useAuthStore = create<AuthState>()(
       },
 
       checkSession: async () => {
-        // Don't set loading true if already loading to prevent UI flicker
         if (!get().isLoading) {
           set({ isLoading: true, error: null });
         }
@@ -74,7 +68,7 @@ export const useAuthStore = create<AuthState>()(
 
           if (sessionError) {
             console.error("Error getting session:", sessionError.message);
-            get()._setUserAndSession(null, null); // Clear state on error
+            get()._setUserAndSession(null, null);
             return;
           }
 
@@ -83,19 +77,15 @@ export const useAuthStore = create<AuthState>()(
             if (profile) {
                get()._setUserAndSession(profile, session);
             } else {
-               console.warn("User session found but profile missing for ID:", session.user.id);
-               // Decide recovery strategy: logout or allow limited access?
-               await get().logout(); // Log out if profile is mandatory
-               // OR: get()._setUserAndSession(null, null); // Clear state but keep session potentially for retry?
+               await get().logout();
             }
           } else {
-             get()._setUserAndSession(null, null); // No session or user
+             get()._setUserAndSession(null, null);
           }
         } catch (error) {
           console.error("Exception in checkSession:", error);
-           get()._setUserAndSession(null, null); // Clear state on unexpected error
+           get()._setUserAndSession(null, null);
         } finally {
-           // Ensure loading is false even if already set by _setUserAndSession
            set({ isLoading: false });
         }
       },
@@ -108,20 +98,17 @@ export const useAuthStore = create<AuthState>()(
             password,
           });
 
-          if (error) throw error; // Throw Supabase Auth errors
+          if (error) throw error;
 
           if (data.user && data.session) {
              const profile = await fetchUserProfile(data.user.id);
              if (profile) {
                 get()._setUserAndSession(profile, data.session);
              } else {
-                 // Handle case where login succeeds but profile fetch fails
-                 console.error("Login successful but failed to fetch profile.");
-                 await get().logout(); // Log out the user immediately
+                 await get().logout();
                  throw new Error("Login succeeded but user profile could not be loaded.");
              }
           } else {
-             // Should not happen if no error, but handle defensively
              throw new Error("Login response missing user or session data.");
           }
         } catch (error: any) {
@@ -129,7 +116,7 @@ export const useAuthStore = create<AuthState>()(
            set({
              error: error.message || "Login failed. Please check your credentials.",
              isLoading: false,
-             isAuthenticated: false, // Ensure auth state is false on error
+             isAuthenticated: false,
              user: null,
              session: null,
            });
@@ -139,18 +126,13 @@ export const useAuthStore = create<AuthState>()(
       register: async (userData, password) => {
         set({ isLoading: true, error: null });
         try {
-          // 1. Sign up the user with Supabase Auth
           const { data: authData, error: signUpError } = await supabase.auth.signUp({
             email: userData.email!,
             password,
             options: {
-              // Data to be available in `auth.users` table (and possibly via trigger to `users` profile table)
               data: {
-                name: userData.name, // Pass name here if your trigger uses it
-                role: userData.role, // Pass role here if your trigger uses it
-                // Add other fields ONLY IF your auth.users table has them
-                // OR if a trigger uses them to populate the public.users table.
-                // Avoid putting sensitive or large data here.
+                name: userData.name,
+                role: userData.role,
               }
             }
           });
@@ -158,16 +140,13 @@ export const useAuthStore = create<AuthState>()(
           if (signUpError) throw signUpError;
           if (!authData.user || !authData.session) throw new Error("Registration response missing user or session data.");
 
-
-          // 2. Create the user profile in the public 'users' table
-          // Make sure userData includes all necessary fields for the 'users' table
-           const profileData: Omit<User, 'id'> & { id: string } = { // Ensure ID is included
-              id: authData.user.id, // Use the ID from the auth user
+          const profileData: Omit<User, 'id'> & { id: string } = {
+              id: authData.user.id,
               name: userData.name || '',
               email: userData.email || '',
-              phone: userData.phone || undefined, // Use undefined if empty string is not desired
-              role: userData.role || 'citizen', // Default role
-              avatarUrl: userData.avatarUrl, // Use camelCase from type def
+              phone: userData.phone || undefined,
+              role: userData.role || 'citizen',
+              avatarUrl: userData.avatarUrl,
               address: userData.address,
               department: userData.department,
               areaAssigned: userData.areaAssigned,
@@ -176,19 +155,13 @@ export const useAuthStore = create<AuthState>()(
             };
 
           const { error: profileError } = await supabase
-            .from('users') // Your public profile table
+            .from('users')
             .insert(profileData);
 
           if (profileError) {
-            console.error("Profile creation failed:", profileError.message);
-            // Optional: Attempt to clean up the auth user if profile creation fails?
-            // This is complex and depends on your requirements.
-            // For now, throw an error indicating partial failure.
             throw new Error(`Registration succeeded but profile creation failed: ${profileError.message}`);
           }
 
-          // 3. Set the state with the newly created profile and session
-          // We fetch the profile again to ensure we have the definitive data from the DB
           const finalProfile = await fetchUserProfile(authData.user.id);
           if (finalProfile) {
              get()._setUserAndSession(finalProfile, authData.session);
@@ -208,28 +181,21 @@ export const useAuthStore = create<AuthState>()(
         }
       },
 
-      // --- Social Logins ---
-      // Ensure EXPO_PUBLIC_APP_SCHEME is set in your .env and matches app.json scheme
       signInWithGoogle: async () => {
         set({ isLoading: true, error: null });
         try {
           const { error } = await supabase.auth.signInWithOAuth({
             provider: 'google',
             options: {
-              // redirectTo is where Supabase redirects after auth
-              // For Expo Go / Dev Client, deeplinking handles the return
                redirectTo: `${process.env.EXPO_PUBLIC_APP_SCHEME}://auth/callback`,
-               // Optional: Add scopes if needed e.g. 'profile email'
             },
           });
           if (error) throw error;
-          // IMPORTANT: Don't set loading false here. The auth listener will handle the SIGNED_IN event
-          // and update the state, including setting loading to false.
         } catch (error: any) {
           console.error("Google sign-in initiation failed:", error.message);
           set({
             error: error.message || "Google sign-in failed.",
-            isLoading: false, // Set loading false on error
+            isLoading: false,
           });
         }
       },
@@ -241,11 +207,9 @@ export const useAuthStore = create<AuthState>()(
             provider: 'facebook',
             options: {
                redirectTo: `${process.env.EXPO_PUBLIC_APP_SCHEME}://auth/callback`,
-               // Optional: Add scopes
             },
           });
           if (error) throw error;
-          // Auth listener handles success
         } catch (error: any) {
           console.error("Facebook sign-in initiation failed:", error.message);
           set({
@@ -256,26 +220,22 @@ export const useAuthStore = create<AuthState>()(
       },
 
       logout: async () => {
-        // Don't set loading if already logging out
         if (!get().isLoading) {
            set({ isLoading: true });
         }
         try {
           const { error } = await supabase.auth.signOut();
           if (error) throw error;
-          // Clear state explicitly
           get()._setUserAndSession(null, null);
         } catch (error: any) {
           console.error("Logout failed:", error.message);
           set({
             error: error.message || "Logout failed.",
-            isLoading: false, // Ensure loading is false even on error
-             // Keep isAuthenticated false etc.
+            isLoading: false,
           });
         } finally {
-           // Double ensure state is cleared and loading is false
            set(state => ({
-             ...state, // keep potential error message
+             ...state,
              user: null,
              session: null,
              isAuthenticated: false,
@@ -289,18 +249,13 @@ export const useAuthStore = create<AuthState>()(
       }
     }),
     {
-      name: "auth-storage", // Unique name for storage
-      storage: createJSONStorage(() => AsyncStorage), // Use AsyncStorage for React Native
+      name: "auth-storage",
+      storage: createJSONStorage(() => AsyncStorage),
        partialize: (state) => ({
-         // Only persist session, not user, isLoading, or error
-         // The user object will be re-fetched based on the session
          session: state.session,
        }),
-       // Custom merge function to re-check session on rehydration
        merge: (persistedState: any, currentState) => {
          const merged = { ...currentState, ...persistedState };
-         // Trigger checkSession after rehydrating the session
-         // Use setTimeout to ensure it runs after initial setup
          setTimeout(() => {
            useAuthStore.getState().checkSession();
          }, 0);
@@ -310,63 +265,47 @@ export const useAuthStore = create<AuthState>()(
   )
 );
 
-// --- Global Auth State Listener ---
-// This listens for auth events from Supabase globally
 supabase.auth.onAuthStateChange(async (event, session) => {
   const { _setUserAndSession, logout, isLoading: storeIsLoading } = useAuthStore.getState();
-  console.log(`Auth Event: ${event}`, session ? `User: ${session.user?.id}` : 'No session');
-
 
   switch (event) {
     case 'INITIAL_SESSION':
-      // Handled by checkSession on store initialization/rehydration
-      // We check manually to fetch the profile along with the session
       break;
     case 'SIGNED_IN':
       if (session?.user) {
-         // Avoid fetching profile if store is currently in a login/register process
          if (!storeIsLoading) {
             const profile = await fetchUserProfile(session.user.id);
             if (profile) {
                 _setUserAndSession(profile, session);
             } else {
-                console.warn("SIGNED_IN event, but profile fetch failed for ID:", session.user.id);
-                // Decide action: logout or wait? Logging out might be safer.
-                 await logout();
+                await logout();
             }
          }
       } else {
-          console.warn("SIGNED_IN event but session or user is missing.");
-          _setUserAndSession(null, null); // Clear state if data is inconsistent
+          _setUserAndSession(null, null);
       }
       break;
     case 'SIGNED_OUT':
        _setUserAndSession(null, null);
       break;
     case 'PASSWORD_RECOVERY':
-      // Handle password recovery UI flow if needed
       break;
     case 'TOKEN_REFRESHED':
       if (session) {
-        // Update the session in the store without changing user/auth state if not needed
         useAuthStore.setState({ session, isLoading: false });
       } else {
-         // If token refresh fails and results in no session, sign out
          _setUserAndSession(null, null);
       }
       break;
     case 'USER_UPDATED':
       if (session?.user) {
-        // Re-fetch profile if user data might have changed
         const profile = await fetchUserProfile(session.user.id);
         if (profile) {
            useAuthStore.setState({ user: profile, session, isLoading: false });
         }
-        // Keep existing session
       }
       break;
     default:
-      // Handle other events if necessary
       break;
   }
 });

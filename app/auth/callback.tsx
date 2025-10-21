@@ -15,7 +15,7 @@ export default function AuthCallback() {
       return;
     }
 
-    // Handle OAuth callback
+    
     if (params?.code) {
       supabase.auth.exchangeCodeForSession(String(params.code))
         .then(({ data, error }) => {

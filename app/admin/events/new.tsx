@@ -33,7 +33,7 @@ export default function CreateEventScreen() {
 
   const handleChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
-    // Clear error when user changes input
+   
     if (formErrors[field]) {
       setFormErrors(prev => ({ ...prev, [field]: "" }));
     }
@@ -82,7 +82,7 @@ export default function CreateEventScreen() {
           ...formData,
           createdBy: user.id,
         });
-        router.push("./events");
+        router.push("/events");
       } catch (error) {
         console.error("Failed to create event:", error);
       }

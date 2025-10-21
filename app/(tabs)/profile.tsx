@@ -10,7 +10,8 @@ import {
 import { Avatar } from "@/components/ui/Avatar";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
-import { colors } from "@/constants/Colors";
+import { ThemeToggle } from "@/components/ui/ThemeToggle";
+import { useTheme } from "@/hooks/useTheme";
 import { useAuthStore } from "@/store/auth-store";
 import { useRouter } from "expo-router";
 import {
@@ -29,6 +30,9 @@ import {
 export default function ProfileScreen() {
   const router = useRouter();
   const { user, logout } = useAuthStore();
+  const { colors } = useTheme();
+  
+  const styles = createStyles(colors);
 
   const handleLogout = () => {
     Alert.alert(
@@ -43,7 +47,7 @@ export default function ProfileScreen() {
           text: "Logout",
           onPress: () => {
             logout();
-            router.replace("./(auth)");
+            router.push("/(auth)");
           },
           style: "destructive",
         },
@@ -141,6 +145,12 @@ export default function ProfileScreen() {
         </Card>
       </TouchableOpacity>
 
+      <Card style={styles.settingCard}>
+        <View style={styles.settingItem}>
+          <ThemeToggle showLabel size={20} />
+        </View>
+      </Card>
+
       <Button
         title="Logout"
         variant="outline"
@@ -158,79 +168,81 @@ export default function ProfileScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.background,
-  },
-  header: {
-    alignItems: "center",
-    padding: 24,
-    backgroundColor: colors.card,
-  },
-  avatar: {
-    marginBottom: 16,
-  },
-  name: {
-    fontSize: 24,
-    fontWeight: "bold",
-    color: colors.text,
-    marginBottom: 8,
-  },
-  roleBadge: {
-    backgroundColor: `${colors.primary}20`,
-    paddingHorizontal: 12,
-    paddingVertical: 4,
-    borderRadius: 16,
-  },
-  roleText: {
-    color: colors.primary,
-    fontWeight: "600",
-    fontSize: 14,
-  },
-  infoCard: {
-    margin: 16,
-  },
-  infoItem: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: 12,
-  },
-  infoText: {
-    fontSize: 16,
-    color: colors.text,
-    marginLeft: 12,
-  },
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: "600",
-    color: colors.text,
-    marginHorizontal: 16,
-    marginTop: 16,
-    marginBottom: 8,
-  },
-  settingCard: {
-    marginHorizontal: 16,
-    marginBottom: 8,
-  },
-  settingItem: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  settingText: {
-    fontSize: 16,
-    color: colors.text,
-    marginLeft: 12,
-  },
-  logoutButton: {
-    margin: 16,
-  },
-  footer: {
-    alignItems: "center",
-    marginVertical: 24,
-  },
-  footerText: {
-    fontSize: 12,
-    color: colors.textSecondary,
-  },
-});
+function createStyles(colors: any) {
+  return StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: colors.background,
+    },
+    header: {
+      alignItems: "center",
+      padding: 24,
+      backgroundColor: colors.card,
+    },
+    avatar: {
+      marginBottom: 16,
+    },
+    name: {
+      fontSize: 24,
+      fontWeight: "bold",
+      color: colors.text,
+      marginBottom: 8,
+    },
+    roleBadge: {
+      backgroundColor: `${colors.primary}20`,
+      paddingHorizontal: 12,
+      paddingVertical: 4,
+      borderRadius: 16,
+    },
+    roleText: {
+      color: colors.primary,
+      fontWeight: "600",
+      fontSize: 14,
+    },
+    infoCard: {
+      margin: 16,
+    },
+    infoItem: {
+      flexDirection: "row",
+      alignItems: "center",
+      marginBottom: 12,
+    },
+    infoText: {
+      fontSize: 16,
+      color: colors.text,
+      marginLeft: 12,
+    },
+    sectionTitle: {
+      fontSize: 18,
+      fontWeight: "600",
+      color: colors.text,
+      marginHorizontal: 16,
+      marginTop: 16,
+      marginBottom: 8,
+    },
+    settingCard: {
+      marginHorizontal: 16,
+      marginBottom: 8,
+    },
+    settingItem: {
+      flexDirection: "row",
+      alignItems: "center",
+    },
+    settingText: {
+      fontSize: 16,
+      color: colors.text,
+      marginLeft: 12,
+    },
+    logoutButton: {
+      margin: 16,
+    },
+    footer: {
+      alignItems: "center",
+      marginVertical: 24,
+    },
+    footerText: {
+      fontSize: 12,
+      color: colors.textSecondary,
+    },
+  });
+}

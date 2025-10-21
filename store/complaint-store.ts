@@ -1,11 +1,10 @@
-// File: store/complaint-store.ts
 import { create } from "zustand";
-import { Complaint, ComplaintStatus, ComplaintUpdate } from "@/types"; // Using camelCase types
+import { Complaint, ComplaintStatus, ComplaintUpdate } from "@/types";
 import { supabase } from "@/lib/supabase";
-import { useAuthStore } from "./auth-store"; // To get current user ID
+import { useAuthStore } from "./auth-store";
 
 interface ComplaintState {
-  complaints: Complaint[]; // State uses camelCase
+  complaints: Complaint[];
   isLoading: boolean;
   error: string | null;
 
@@ -13,10 +12,10 @@ interface ComplaintState {
   fetchUserComplaints: (userId: string) => Promise<Complaint[]>;
   fetchAssignedComplaints: (employeeId: string) => Promise<Complaint[]>;
   getComplaintById: (id: string) => Promise<Complaint | null>;
-  createComplaint: (complaintData: Omit<Complaint, "id" | "createdAt" | "updatedAt" | "status" | "resolvedAt" | "citizenId">) => Promise<Complaint>; // citizenId comes from auth user
+  createComplaint: (complaintData: Omit<Complaint, "id" | "createdAt" | "updatedAt" | "status" | "resolvedAt" | "citizenId">) => Promise<Complaint>;
   updateComplaintStatus: (complaintId: string, status: ComplaintStatus, notes?: string, photoUrls?: string[]) => Promise<void>;
-  assignComplaint: (complaintId: string, employeeId: string, departmentId?: string) => Promise<void>; // Added departmentId
-  getComplaintUpdates: (complaintId: string) => Promise<ComplaintUpdate[]>; // Added function
+  assignComplaint: (complaintId: string, employeeId: string, departmentId?: string) => Promise<void>;
+  getComplaintUpdates: (complaintId: string) => Promise<ComplaintUpdate[]>;
 }
 
 export const useComplaintStore = create<ComplaintState>((set, get) => ({
@@ -28,24 +27,16 @@ export const useComplaintStore = create<ComplaintState>((set, get) => ({
     set({ isLoading: true, error: null });
     try {
       let query = supabase
-        .from('complaints') // DB table name
-        .select('*') // Select all columns
-        .order('created_at', { ascending: false }); // Order by creation date
+        .from('complaints')
+        .select('*')
+        .order('created_at', { ascending: false });
 
-      // Apply filters dynamically
-      if (filters.status) {
-         query = query.eq('status', filters.status);
-      }
-       if (filters.departmentId) {
-         query = query.eq('department_id', filters.departmentId);
-       }
-       // Add more filters as needed (e.g., priority, date range)
+      if (filters.status) query = query.eq('status', filters.status);
+      if (filters.departmentId) query = query.eq('department_id', filters.departmentId);
 
       const { data, error } = await query;
 
       if (error) throw error;
-      // Data from Supabase is snake_case, map to camelCase if necessary
-      // Supabase JS v2 often does this automatically, but check console output if unsure
       set({ complaints: data as Complaint[], isLoading: false });
     } catch (error: any) {
       console.error("Failed to fetch complaints:", error.message);
@@ -57,19 +48,16 @@ export const useComplaintStore = create<ComplaintState>((set, get) => ({
   },
 
   fetchUserComplaints: async (userId) => {
-    // Note: This might duplicate data if fetchComplaints was already called.
-    // Consider filtering the main 'complaints' array if performance is critical
-    // or ensure this is called specifically when only user complaints are needed.
     set({ isLoading: true, error: null });
     try {
       const { data, error } = await supabase
         .from('complaints')
         .select('*')
-        .eq('citizen_id', userId) // Use snake_case for DB column
+        .eq('citizen_id', userId)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      set({ isLoading: false }); // Don't overwrite main complaints array here
+      set({ isLoading: false });
       return data as Complaint[];
     } catch (error: any) {
       console.error("Failed to fetch user complaints:", error.message);
@@ -87,11 +75,11 @@ export const useComplaintStore = create<ComplaintState>((set, get) => ({
       const { data, error } = await supabase
         .from('complaints')
         .select('*')
-        .eq('assigned_employee_id', employeeId) // Use snake_case for DB column
+        .eq('assigned_employee_id', employeeId)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      set({ isLoading: false }); // Don't overwrite main complaints array
+      set({ isLoading: false });
       return data as Complaint[];
     } catch (error: any) {
       console.error("Failed to fetch assigned complaints:", error.message);
@@ -104,25 +92,20 @@ export const useComplaintStore = create<ComplaintState>((set, get) => ({
   },
 
   getComplaintById: async (id) => {
-    // Check cache first
-    const cachedComplaint = get().complaints.find(c => c.id === id);
-    // if (cachedComplaint) return cachedComplaint; // Optional: return cached version immediately
-
     set({ isLoading: true, error: null });
     try {
       const { data, error } = await supabase
         .from('complaints')
         .select('*')
         .eq('id', id)
-        .single(); // Expect one result
+        .single();
 
       if (error) {
-        // Handle 'PGRST116' (resource not found) gracefully
         if (error.code === 'PGRST116') {
-          set({ isLoading: false, error: null }); // Not really an error state
+          set({ isLoading: false, error: null });
           return null;
         }
-        throw error; // Throw other errors
+        throw error;
       }
       set({ isLoading: false });
       return data as Complaint;
@@ -137,41 +120,36 @@ export const useComplaintStore = create<ComplaintState>((set, get) => ({
   },
 
   createComplaint: async (complaintData) => {
-     const userId = useAuthStore.getState().user?.id;
-     if (!userId) {
-       const errorMsg = "User must be logged in to create a complaint.";
-       set({ error: errorMsg, isLoading: false });
-       throw new Error(errorMsg);
-     }
+    const userId = useAuthStore.getState().user?.id;
+    if (!userId) {
+      const errorMsg = "User must be logged in to create a complaint.";
+      set({ error: errorMsg, isLoading: false });
+      throw new Error(errorMsg);
+    }
 
     set({ isLoading: true, error: null });
     try {
-       // Map camelCase from input (complaintData) to snake_case for DB insert
       const newComplaintDataForDb = {
-        citizen_id: userId, // Get current user's ID
+        citizen_id: userId,
         type: complaintData.type,
         description: complaintData.description,
         photo_urls: complaintData.photoUrls,
         location_lat: complaintData.locationLat,
         location_long: complaintData.locationLong,
         address: complaintData.address,
-        priority: complaintData.priority || 'normal', // Default priority
-        status: 'new' as const, // Initial status
-        department_id: complaintData.departmentId, // Optional
-        // assigned_employee_id is initially null
-        // created_at, updated_at are set by DB defaults
+        priority: complaintData.priority || 'normal',
+        status: 'new' as const,
+        department_id: complaintData.departmentId,
       };
-
 
       const { data, error } = await supabase
         .from('complaints')
         .insert(newComplaintDataForDb)
-        .select() // Select the newly inserted row
-        .single(); // Expect one row back
+        .select()
+        .single();
 
       if (error) throw error;
 
-      // Add the new complaint (already in correct camelCase from select) to the state
       set(state => ({
         complaints: [data as Complaint, ...state.complaints],
         isLoading: false
@@ -184,66 +162,57 @@ export const useComplaintStore = create<ComplaintState>((set, get) => ({
         error: error.message || "Failed to create complaint",
         isLoading: false
       });
-      throw error; // Re-throw to allow UI to handle failure
+      throw error;
     }
   },
 
   updateComplaintStatus: async (complaintId, status, notes, photoUrls) => {
-     const userId = useAuthStore.getState().user?.id;
-     if (!userId) {
-       const errorMsg = "User must be logged in to update a complaint.";
-       set({ error: errorMsg, isLoading: false });
-       throw new Error(errorMsg);
-     }
+    const userId = useAuthStore.getState().user?.id;
+    if (!userId) {
+      const errorMsg = "User must be logged in to update a complaint.";
+      set({ error: errorMsg, isLoading: false });
+      throw new Error(errorMsg);
+    }
 
     set({ isLoading: true, error: null });
     try {
       const updatePayload: any = {
-          status,
-          updated_at: new Date().toISOString(),
+        status,
+        updated_at: new Date().toISOString(),
       };
       if (status === 'completed') {
-          updatePayload.resolved_at = new Date().toISOString();
+        updatePayload.resolved_at = new Date().toISOString();
       }
 
-      // 1. Update the main complaint record
       const { error: updateError } = await supabase
         .from('complaints')
-        .update(updatePayload) // Use snake_case if payload keys need mapping (Supabase might handle it)
+        .update(updatePayload)
         .eq('id', complaintId);
 
       if (updateError) throw updateError;
 
-      // 2. Add a record to complaint_updates if notes or photos provided
       if (notes || (photoUrls && photoUrls.length > 0)) {
-        const { error: logError } = await supabase
-          .from('complaint_updates') // DB table name
+        await supabase
+          .from('complaint_updates')
           .insert({
             complaint_id: complaintId,
             status,
-            notes: notes || undefined, // Use undefined if null/empty
+            notes: notes || undefined,
             photo_urls: photoUrls,
-            updated_by: userId, // ID of the user making the update
-             // updated_at is set by DB default
+            updated_by: userId,
           });
-        if (logError) {
-           console.warn("Complaint status updated, but failed to log update details:", logError.message);
-           // Decide if this should be a partial success or throw error
-           // throw new Error(`Status updated, but log failed: ${logError.message}`);
-        }
       }
 
-      // 3. Update local state
       set(state => ({
         complaints: state.complaints.map(c =>
           c.id === complaintId
             ? {
-                ...c, // Spread existing complaint
-                status: status, // Update status
-                updatedAt: updatePayload.updated_at, // Use the same timestamp
-                resolvedAt: status === 'completed' ? updatePayload.resolved_at : c.resolvedAt, // Update resolvedAt if completed
+                ...c,
+                status,
+                updatedAt: updatePayload.updated_at,
+                resolvedAt: status === 'completed' ? updatePayload.resolved_at : c.resolvedAt,
               }
-            : c // Return other complaints unchanged
+            : c
         ),
         isLoading: false
       }));
@@ -258,26 +227,24 @@ export const useComplaintStore = create<ComplaintState>((set, get) => ({
   },
 
   assignComplaint: async (complaintId, employeeId, departmentId) => {
-     const userId = useAuthStore.getState().user?.id; // User performing the assignment (e.g., admin)
-     if (!userId) {
-       const errorMsg = "User must be logged in to assign a complaint.";
-       set({ error: errorMsg, isLoading: false });
-       throw new Error(errorMsg);
-     }
+    const userId = useAuthStore.getState().user?.id;
+    if (!userId) {
+      const errorMsg = "User must be logged in to assign a complaint.";
+      set({ error: errorMsg, isLoading: false });
+      throw new Error(errorMsg);
+    }
 
     set({ isLoading: true, error: null });
     try {
       const updatePayload: any = {
-          assigned_employee_id: employeeId,
-          status: 'assigned' as const,
-          updated_at: new Date().toISOString(),
+        assigned_employee_id: employeeId,
+        status: 'assigned' as const,
+        updated_at: new Date().toISOString(),
       };
-       // Optionally update department if provided
-       if (departmentId) {
-         updatePayload.department_id = departmentId;
-       }
+      if (departmentId) {
+        updatePayload.department_id = departmentId;
+      }
 
-      // 1. Update the complaint record
       const { error: updateError } = await supabase
         .from('complaints')
         .update(updatePayload)
@@ -285,23 +252,20 @@ export const useComplaintStore = create<ComplaintState>((set, get) => ({
 
       if (updateError) throw updateError;
 
-      // 2. Optionally add to complaint_updates log
-       await supabase.from('complaint_updates').insert({
-         complaint_id: complaintId,
-         status: 'assigned',
-         notes: `Assigned to employee ID: ${employeeId}`, // Example note
-         updated_by: userId,
-       });
-       // Handle log error similarly to updateComplaintStatus if needed
+      await supabase.from('complaint_updates').insert({
+        complaint_id: complaintId,
+        status: 'assigned',
+        notes: `Assigned to employee ID: ${employeeId}`,
+        updated_by: userId,
+      });
 
-      // 3. Update local state
       set(state => ({
         complaints: state.complaints.map(c =>
           c.id === complaintId
             ? {
                 ...c,
-                assignedEmployeeId: employeeId, // camelCase state
-                departmentId: departmentId || c.departmentId, // Update department if changed
+                assignedEmployeeId: employeeId,
+                departmentId: departmentId || c.departmentId,
                 status: 'assigned',
                 updatedAt: updatePayload.updated_at,
               }
@@ -309,10 +273,6 @@ export const useComplaintStore = create<ComplaintState>((set, get) => ({
         ),
         isLoading: false
       }));
-
-      // TODO: Add notification for the assigned employee
-      // useNotificationStore.getState().addNotification(...)
-
     } catch (error: any) {
       console.error("Failed to assign complaint:", error.message);
       set({
@@ -323,29 +283,26 @@ export const useComplaintStore = create<ComplaintState>((set, get) => ({
     }
   },
 
-   // Function to get update history for a specific complaint
-   getComplaintUpdates: async (complaintId: string): Promise<ComplaintUpdate[]> => {
-      set({ isLoading: true, error: null }); // Indicate loading for this specific action
-      try {
-         const { data, error } = await supabase
-         .from('complaint_updates') // DB table name
-         .select('*')
-         .eq('complaint_id', complaintId) // snake_case column
-         .order('updated_at', { ascending: false }); // Show latest first
+  getComplaintUpdates: async (complaintId) => {
+    set({ isLoading: true, error: null });
+    try {
+      const { data, error } = await supabase
+        .from('complaint_updates')
+        .select('*')
+        .eq('complaint_id', complaintId)
+        .order('updated_at', { ascending: false });
 
-         if (error) throw error;
+      if (error) throw error;
 
-         set({ isLoading: false }); // Loading finished
-         return data as ComplaintUpdate[]; // Return the fetched updates
-
-      } catch (error: any) {
-         console.error("Failed to fetch complaint updates:", error.message);
-         set({
-            error: error.message || "Failed to fetch complaint history",
-            isLoading: false, // Ensure loading is off on error
-         });
-         return []; // Return empty array on failure
-      }
-   },
-
+      set({ isLoading: false });
+      return data as ComplaintUpdate[];
+    } catch (error: any) {
+      console.error("Failed to fetch complaint updates:", error.message);
+      set({
+        error: error.message || "Failed to fetch complaint history",
+        isLoading: false,
+      });
+      return [];
+    }
+  },
 }));

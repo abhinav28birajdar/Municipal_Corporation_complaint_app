@@ -25,7 +25,7 @@ export default function EmployeesScreen() {
   }, []);
 
   const loadData = () => {
-    // Filter only employees from mock data
+  
     const employeesList = mockUsers.filter(user => user.role === "employee");
     setEmployees(employeesList);
   };
@@ -37,7 +37,7 @@ export default function EmployeesScreen() {
   };
 
   const handleEmployeePress = (employeeId: string) => {
-    router.push(`./admin/employees/${employeeId}`);
+    router.push(`/admin/employees/${employeeId}` as any);
   };
 
   const handleAddEmployee = () => {

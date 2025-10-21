@@ -47,16 +47,16 @@ export default function ChatScreen() {
     try {
       setIsSending(true);
       
-      // Determine receiver based on user role
+  
       let receiverId = "";
       if (user.role === "citizen") {
-        // Find the employee assigned to this complaint
+       
         const complaint = mockUsers.find(u => u.role === "employee");
-        receiverId = complaint?.id || "employee-1"; // Fallback
+        receiverId = complaint?.id || "employee-1"; 
       } else {
-        // Find the citizen who created this complaint
+      
         const complaint = mockUsers.find(u => u.role === "citizen");
-        receiverId = complaint?.id || "citizen-1"; // Fallback
+        receiverId = complaint?.id || "citizen-1"; 
       }
       
       await sendMessage({
@@ -69,7 +69,7 @@ export default function ChatScreen() {
       
       await loadMessages();
       
-      // Scroll to bottom
+     
       setTimeout(() => {
         flatListRef.current?.scrollToEnd({ animated: true });
       }, 100);

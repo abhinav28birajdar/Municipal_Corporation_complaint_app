@@ -1,16 +1,22 @@
 {
   "expo": {
-    "name": "complaint_application",
-    "slug": "complaint_application",
+    "name": "Municipal Connect",
+    "slug": "municipal-connect",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "myapp",
+    "scheme": "municipal-connect",
     "userInterfaceStyle": "automatic",
+    "sdkVersion": "52.0.0",
     "ios": {
       "supportsTablet": true,
       "newArchEnabled": true,
-      "bundleIdentifier": "com.yourcompany.complaintapplication"
+      "bundleIdentifier": "com.municipalconnect.app",
+      "infoPlist": {
+        "NSCameraUsageDescription": "This app uses the camera to take photos for complaints and work updates.",
+        "NSLocationWhenInUseUsageDescription": "This app uses location to show nearby services and track complaint locations.",
+        "NSMicrophoneUsageDescription": "This app uses microphone for voice recordings in complaints."
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -18,13 +24,13 @@
         "backgroundColor": "#ffffff"
       },
       "newArchEnabled": true,
-      "package": "com.yourcompany.complaintapplication",
+      "package": "com.municipalconnect.app",
       "intentFilters": [
         {
           "action": "VIEW",
           "data": [
             {
-              "scheme": "myapp"
+              "scheme": "municipal-connect"
             }
           ],
           "category": [
@@ -32,6 +38,14 @@
             "DEFAULT"
           ]
         }
+      ],
+      "permissions": [
+        "CAMERA",
+        "ACCESS_FINE_LOCATION",
+        "ACCESS_COARSE_LOCATION",
+        "RECORD_AUDIO",
+        "READ_EXTERNAL_STORAGE",
+        "WRITE_EXTERNAL_STORAGE"
       ]
     },
     "web": {
@@ -52,7 +66,25 @@
       [
         "expo-router",
         {
-          "origin": "myapp://"
+          "origin": "municipal-connect://"
+        }
+      ],
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Allow Municipal Connect to access your camera to take photos for complaints."
+        }
+      ],
+      [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": "Allow Municipal Connect to use your location to show nearby services."
+        }
+      ],
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/images/notification-icon.png"
         }
       ]
     ],
@@ -62,11 +94,14 @@
     },
     "extra": {
       "router": {
-        "origin": "myapp://"
+        "origin": "municipal-connect://"
       },
       "eas": {
         "projectId": "your-project-id-here"
       }
+    },
+    "runtimeVersion": {
+      "policy": "appVersion"
     }
   }
 }

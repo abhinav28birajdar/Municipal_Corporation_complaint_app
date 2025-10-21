@@ -7,7 +7,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
-  Alert, // <-- Import Alert
+  Alert,
 } from "react-native";
 import { AuthForm, AuthFormData } from "@/components/auth/AuthForm";
 import { RoleSelector } from "@/components/auth/RoleSelector";
@@ -22,66 +22,65 @@ export default function RegisterScreen() {
   
   const { register, isAuthenticated, isLoading, error, clearError } = useAuthStore();
   const [selectedRole, setSelectedRole] = useState<UserRole>("citizen");
+  const [registrationSubmitted, setRegistrationSubmitted] = useState(false);
 
   useEffect(() => {
-   
+    
     if (isAuthenticated) {
       console.log("RegisterScreen: User is authenticated, replacing route to /tabs");
       router.replace("/(tabs)");
     }
   }, [isAuthenticated, router]); 
 
+  useEffect(() => {
+    if (error && !isLoading) {
+      Alert.alert("Registration Error", error);
+    }
+  }, [error, isLoading]);
+
+
+  useEffect(() => {
+    if (registrationSubmitted && !isLoading && !error) {
+      Alert.alert(
+        "Registration Successful!",
+        "Please check your email inbox (and spam folder!) to find the confirmation link. Click it to activate your account before logging in.",
+        [
+          {
+            text: "OK",
+            onPress: () => {
+              router.push("/login");
+            },
+          },
+        ]
+      );
+    
+      setRegistrationSubmitted(false);
+    }
+  }, [registrationSubmitted, isLoading, error]);
+
   const handleRegister = async (data: AuthFormData) => {
     clearError(); 
     console.log("RegisterScreen: Attempting registration...");
 
     try {
- 
+      setRegistrationSubmitted(true);
+      
       await register(
         {
-          name: data.name,
+          name: data.name || "",
           email: data.email,
-          phone: data.phone,
+          phone: data.phone || "",
           role: selectedRole,
         },
         data.password
       );
-
-
-      setTimeout(() => {
-        const { error: currentError, isAuthenticated: currentlyAuthenticated } = useAuthStore.getState();
-
-        if (currentError) {
- 
-          console.error("RegisterScreen: Registration failed:", currentError);
-     
-        } else if (!currentlyAuthenticated) {
-       
-          console.log("RegisterScreen: Registration successful, showing email confirmation alert.");
-          Alert.alert(
-            "Registration Successful!",
-            "Please check your email inbox (and spam folder!) to find the confirmation link. Click it to activate your account before logging in.",
-            [
-              {
-                text: "OK",
-                onPress: () => {
-                 
-                  console.log("OK Pressed on confirmation alert");
-                },
-              },
-            ]
-          );
-        } else {
-          
-           console.log("RegisterScreen: Registration successful and user authenticated.");
-        }
-      }, 100); 
-
+      
+    
+      
     } catch (registrationError) {
-     
       console.error("RegisterScreen: Unexpected error during register call:", registrationError);
-      Alert.alert("Registration Error", "An unexpected error occurred. Please try again.");
-     
+      
+      setRegistrationSubmitted(false);
     }
   };
 
@@ -98,7 +97,7 @@ export default function RegisterScreen() {
       <StatusBar style="dark" />
       <ScrollView
          contentContainerStyle={styles.scrollContent}
-         keyboardShouldPersistTaps="handled" // Good practice for forms in ScrollViews
+         keyboardShouldPersistTaps="handled"
       >
         <View style={styles.header}>
           <Text style={styles.title}>Create Account</Text>
@@ -113,7 +112,6 @@ export default function RegisterScreen() {
             onSelectRole={setSelectedRole}
           />
 
-  
           <AuthForm
             type="register"
             onSubmit={handleRegister} 
@@ -133,7 +131,6 @@ export default function RegisterScreen() {
     </KeyboardAvoidingView>
   );
 }
-
 
 const styles = StyleSheet.create({
   container: {

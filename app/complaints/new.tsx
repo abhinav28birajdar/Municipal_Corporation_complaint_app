@@ -15,7 +15,7 @@ export default function NewComplaintScreen() {
     try {
       setError(null);
       const newComplaint = await createComplaint(complaintData);
-      router.push(`./complaints/${newComplaint.id}`);
+      router.push(`/complaints/${newComplaint.id}`);
     } catch (err) {
       setError("Failed to submit complaint. Please try again.");
       console.error(err);

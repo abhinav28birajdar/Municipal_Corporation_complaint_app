@@ -33,7 +33,7 @@ export default function EventDetailsScreen() {
     const eventData = getEventById(id);
     
     if (eventData) {
-      setEvent(eventData);
+      setEvent(await eventData);
     } else {
       router.back();
     }

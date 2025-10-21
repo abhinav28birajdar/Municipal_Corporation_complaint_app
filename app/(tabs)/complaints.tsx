@@ -83,7 +83,7 @@ export default function ComplaintsScreen() {
   };
 
   const handleNewComplaint = () => {
-    router.push("./complaints/new");
+    router.push("/complaints/new");
   };
 
   const getCitizen = (citizenId: string) => {

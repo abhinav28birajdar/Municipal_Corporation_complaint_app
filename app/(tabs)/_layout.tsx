@@ -2,24 +2,10 @@ import React from "react";
 import { Tabs } from "expo-router";
 import { colors } from "@/constants/Colors";
 import { useAuthStore } from "@/store/auth-store";
-import {
-  Home,
-  FileText,
-  Calendar,
-  Bell,
-  User,
-  // Settings, // Settings icon not used here
-  Users,
-} from "lucide-react-native"; // Assuming lucide-react-native is installed and working
+import { Home, FileText, Calendar, Bell, User, Users } from "lucide-react-native";
 
 export default function TabLayout() {
   const { user } = useAuthStore();
-
-  // This layout structure looks correct. The warnings about layout children
-  // might be due to a stale cache. Try restarting with `npx expo start -c`.
-  // Also, ensure there are no actual files named 'map.tsx' or 'map.js' inside 'app/(tabs)/'
-  // if you are getting the 'No route named "map"' warning, and check for any <Link> components
-  // or router.push calls pointing to '/(tabs)/map'.
 
   return (
     <Tabs
@@ -28,34 +14,33 @@ export default function TabLayout() {
         tabBarInactiveTintColor: colors.textSecondary,
         tabBarStyle: {
           backgroundColor: colors.card,
-          borderTopWidth: 1, // Ensure borderTopWidth is explicitly set if needed
+          borderTopWidth: 1,
           borderTopColor: colors.border,
         },
         tabBarLabelStyle: {
-          fontSize: 10, // Slightly smaller font size for labels can help fit text
-          fontWeight: '500', // Adjust weight if needed
-          paddingBottom: 5, // Add some padding below label
+          fontSize: 10,
+          fontWeight: '500',
+          paddingBottom: 5,
         },
         tabBarIconStyle: {
-          marginTop: 5, // Add margin above icon if needed
+          marginTop: 5,
         },
         headerStyle: {
           backgroundColor: colors.card,
-          elevation: 0, // Remove shadow on header if desired
-          shadowOpacity: 0, // Remove shadow on header for iOS
-          borderBottomWidth: 1, // Add bottom border to header
+          elevation: 0,
+          shadowOpacity: 0,
+          borderBottomWidth: 1,
           borderBottomColor: colors.border,
         },
         headerTintColor: colors.text,
         headerTitleStyle: {
           fontWeight: "600",
-          fontSize: 18, // Ensure header title size is appropriate
+          fontSize: 18,
         },
       }}
     >
-      {/* Only Tabs.Screen components are direct children, which is correct */}
       <Tabs.Screen
-        name="index" // Corresponds to app/(tabs)/index.tsx
+        name="index"
         options={{
           title: "Home",
           tabBarIcon: ({ color, size }) => <Home size={size} color={color} />,
@@ -63,7 +48,7 @@ export default function TabLayout() {
       />
 
       <Tabs.Screen
-        name="complaints" // Corresponds to app/(tabs)/complaints.tsx
+        name="complaints"
         options={{
           title: "Complaints",
           tabBarIcon: ({ color, size }) => <FileText size={size} color={color} />,
@@ -71,7 +56,7 @@ export default function TabLayout() {
       />
 
       <Tabs.Screen
-        name="schedule" // Corresponds to app/(tabs)/schedule.tsx
+        name="schedule"
         options={{
           title: "Schedule",
           tabBarIcon: ({ color, size }) => <Calendar size={size} color={color} />,
@@ -79,14 +64,13 @@ export default function TabLayout() {
       />
 
       <Tabs.Screen
-        name="notifications" // Corresponds to app/(tabs)/notifications.tsx
+        name="notifications"
         options={{
           title: "Notifications",
           tabBarIcon: ({ color, size }) => <Bell size={size} color={color} />,
         }}
       />
 
-      {/* Conditional rendering for admin tab based on user role */}
       {user?.role === "admin" && (
         <Tabs.Screen
           name="admin" 
@@ -104,7 +88,6 @@ export default function TabLayout() {
           tabBarIcon: ({ color, size }) => <User size={size} color={color} />,
         }}
       />
-    
     </Tabs>
   );
 }
