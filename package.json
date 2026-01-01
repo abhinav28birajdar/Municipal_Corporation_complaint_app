@@ -68,7 +68,9 @@
     "expo-camera": "~15.0.16",
     "expo-notifications": "~0.28.18",
     "expo-device": "~6.0.2",
-    "victory-native": "^41.4.0"
+    "victory-native": "^41.4.0",
+    "@openspacelabs/react-native-zoomable-view": "^2.1.5",
+    "expo-media-library": "~16.0.5"
   },
   "devDependencies": {
     "@babel/core": "^7.26.0",

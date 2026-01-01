@@ -4,14 +4,13 @@ import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { useEffect } from "react";
 import { Platform } from "react-native";
+import "../global.css";
 
 import { ErrorBoundary } from "./error-boundary";
 
 export const unstable_settings = {
-
-  initialRouteName: "(tabs)",
+  initialRouteName: "splash",
 };
-
 
 SplashScreen.preventAutoHideAsync();
 
