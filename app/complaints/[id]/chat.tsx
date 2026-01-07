@@ -21,7 +21,7 @@ import { MessageSquare } from "lucide-react-native";
 export default function ChatScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { user } = useAuthStore();
-  const { messages, fetchComplaintMessages, sendMessage, isLoading } = useMessageStore();
+  const { fetchComplaintMessages, sendMessage, isLoading } = useMessageStore();
   
   const [complaintMessages, setComplaintMessages] = useState<Message[]>([]);
   const [isSending, setIsSending] = useState(false);

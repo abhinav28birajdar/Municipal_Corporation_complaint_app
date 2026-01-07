@@ -37,9 +37,12 @@ export { default as RoleSelector } from './auth/RoleSelector';
 // Complaint Components
 export { default as ComplaintStatusTimeline } from './complaints/ComplaintStatusTimeline';
 export { default as CategorySelector } from './complaints/CategorySelector';
+export { ComplaintTimeline } from './complaints/ComplaintTimeline';
+export { ComplaintDetailCard } from './complaints/ComplaintDetailCard';
+export { ComplaintFormWizard } from './complaints/ComplaintFormWizard';
 
 // Admin Components
 export { default as EmployeeCard } from './admin/EmployeeCard';
 
 // Home Components
-// Add exports as needed
+export { StatCard, StatsGrid, SummaryCard } from './home/StatCard';

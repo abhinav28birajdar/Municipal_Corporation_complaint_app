@@ -61,7 +61,7 @@ export default function ComplaintConfirmationScreen() {
     checkScale.value = withDelay(
       300,
       withSequence(
-        withTiming(1.2, { duration: 300, easing: Easing.out(Easing.back) }),
+        withTiming(1.2, { duration: 300, easing: Easing.bezier(0.34, 1.56, 0.64, 1) }),
         withTiming(1, { duration: 200 })
       )
     );

@@ -20,6 +20,10 @@ export const colors = {
     statusInProgress: "#3B82F6", // Blue
     statusCompleted: "#10B981", // Green
     statusCancelled: "#EF4444", // Red
+    // Additional theme colors
+    tint: "#3B82F6", // Same as primary
+    tabIconDefault: "#6B7280", // Same as textSecondary
+    tabIconSelected: "#3B82F6", // Same as primary
   };
   
   export const darkColors = {
@@ -44,4 +48,14 @@ export const colors = {
     statusInProgress: "#3B82F6",
     statusCompleted: "#10B981",
     statusCancelled: "#EF4444",
+    // Additional theme colors
+    tint: "#60A5FA", // Lighter blue for dark mode
+    tabIconDefault: "#9CA3AF", // Same as textSecondary
+    tabIconSelected: "#60A5FA", // Lighter blue for dark mode
+  };
+
+  // Also export Colors object for files expecting Colors.dark/Colors.light pattern
+  export const Colors = {
+    light: colors,
+    dark: darkColors,
   };
