@@ -1,58 +1,96 @@
-# Municipal Corporation Complaint App (Municipal Connect)
-<div align="center">
-  <img src="./assets/icon.png" width="100" height="100" alt="Municipal Connect Icon" />
-  <h1>Municipal Connect</h1>
-  <p>A premium, production-grade mobile UI for the modern grooming experience.</p>
-</div>
-A comprehensive, production-ready React Native Expo application designed for efficient civic issue reporting and resolution. This app bridges the gap between citizens, municipal employees, and administrators.
+# Municipal Connect - Smart City Governance Platform
 
-## 🚀 Key Features
+<p align="center">
+  <img src="./assets/icon.png" alt="Municipal Connect Logo" width="120px">
+</p>
 
-### 🔐 Authentication & Roles
-- **Multi-Role Support**: Tailored dashboards for Citizens, Municipal Employees, Department Admins, and Super Admins.
-- **Secure Onboarding**: Splash screen sequence, swipeable features, and regional language selection (English, Hindi, Marathi).
-- **Verification**: OTP-based phone verification and password recovery.
+## 🚀 Status: Active Development
+**Municipal Connect** is a production-grade civic technology platform built with **React Native (Expo)** and **Supabase**. We are actively migrating from a standalone MVP to a scalable, real-time distributed system designed to bridge the gap between citizens and municipal authorities.
 
-### 📝 Complaint Management (Citizen)
-- **Quick Reporting**: Categorized issue reporting (Garbage, Water, Roads, etc.) with AI assistance.
-- **Rich Attachments**: Upload photos, videos, or record voice descriptions of the issue.
-- **GPS Integration**: Auto-detect ward and precise location for accurate reporting.
-- **Live Tracking**: Real-time status timeline and progress notifications.
+The goal is to create a seamless, transparent, and efficient issue resolution lifecycle using reactive databases and geospatial technology.
 
-### 🛠️ Workforce Management (Employee)
-- **Task Dashboard**: View assigned complaints with priority labels and SLA countdowns.
-- **Field Updates**: Check-in with GPS, upload progress photos, and mark issues as resolved.
-- **Performance Tracking**: Personalized metrics and attendance history.
+## 🛠️ Tech Stack
 
-### 🏛️ Administration & Analytics
-- **Department Controls**: Assign complaints to staff, manage employee workload, and monitor resolution rates.
-- **Heatmaps**: Visualize problem clusters across city wards in real-time.
-- **Data Insights**: Comprehensive charts for city-wide analytics and predictive maintenance.
+<p align="left">
+  <img src="https://img.shields.io/badge/React_Native-20232A?style=for-the-badge&logo=react&logoColor=61DAFB" alt="React Native" />
+  <img src="https://img.shields.io/badge/Expo-1B1F23?style=for-the-badge&logo=expo&logoColor=white" alt="Expo" />
+  <img src="https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white" alt="TypeScript" />
+  <img src="https://img.shields.io/badge/Supabase-181818?style=for-the-badge&logo=supabase&logoColor=3ECF8E" alt="Supabase" />
+  <img src="https://img.shields.io/badge/PostgreSQL-316192?style=for-the-badge&logo=postgresql&logoColor=white" alt="PostgreSQL" />
+  <img src="https://img.shields.io/badge/FCM_(Cloud_Messaging)-FFCA28?style=for-the-badge&logo=firebase&logoColor=black" alt="FCM" />
+  <img src="https://img.shields.io/badge/Expo_Notifications-000020?style=for-the-badge&logo=expo&logoColor=white" alt="Expo Notifications" />
+  <img src="https://img.shields.io/badge/Paper_(Material_3)-6200EE?style=for-the-badge&logo=materialdesign&logoColor=white" alt="React Native Paper" />
+</p>
 
-### 🔔 Community & Engagement
-- **Public Feed**: Upvote and comment on nearby issues to prioritize community needs.
-- **Leaderboards**: Rewards for active citizens and high-performing officers.
-- **Area Alerts**: Notifications for scheduled maintenance, water outages, or emergencies.
-
-## 🎨 Tech Stack & UI
-- **Framework**: React Native Expo (SDK 54)
-- **UI System**: React Native Paper (Material Design 3)
-- **Navigation**: Expo Router (File-based)
-- **Animations**: Reanimated, Lottie, and Layout Transitions.
-- **State**: React Context & Hooks.
-- **Theme**: Full Light/Dark mode support.
-
-## 📁 Project Structure
-- `app/`: Expo Router screens organized by user role.
-- `components/`: Atomic UI components, cards, and specialized headers.
-- `constants/`: Global theme, colors, and spacing tokens.
-- `assets/`: Lottie animations and brand assets.
-
-## ⚙️ How to Run
-1. Clone the repository.
-2. Run `npm install`.
-3. Start the project: `npx expo start`.
-4. Use the demo credentials provided on the Login screen to explore different roles.
+* **Frontend:** React Native with Expo (Managed Workflow)
+* **Language:** TypeScript
+* **Navigation:** Expo Router (File-based Routing)
+* **Backend/Database:** Supabase (PostgreSQL & Realtime Edge Functions)
+* **Authentication:** Supabase Auth (OTP, Phone, & Role-based Access)
+* **Real-time & Notifications:**
+    * **FCM (Firebase Cloud Messaging):** For high-priority emergency alerts.
+    * **Supabase Realtime:** For live complaint status updates.
+* **Maps:** React Native Maps (Google/Mapbox integration)
+* **Storage:** Supabase Storage (Evidence Photos/Videos)
 
 ---
-*Empowering Citizens, Improving Cities.*
+
+## ⚙️ Core Functions & Modules
+
+### 🏙️ Citizen Portal (The Reporter)
+* **Smart Reporting Engine:**
+    * **AI-Assisted Classification:** Auto-categorization of issues (Pot-holes, Garbage, Water Leakage) using image recognition (Future Scope).
+    * **Rich Evidence:** Capture photos, record voice notes, or upload videos directly to Supabase Storage.
+    * **Geospatial Tagging:** Auto-detection of Ward Number and precise GPS coordinates using device location services.
+* **Real-Time Transparency:**
+    * **Live Status Timeline:** Watch the complaint move from "Submitted" → "Assigned" → "In Progress" → "Resolved" in real-time.
+    * **Community Feed:** Upvote and comment on nearby issues to prioritize community needs (Crowdsourcing priority).
+
+### 👷 Workforce Dashboard (The Solver)
+* **Field Operations:**
+    * **Task Dispatch:** Instant notification of new assignments via FCM with priority labels (SLA countdowns).
+    * **Navigation Support:** In-app routing to the complaint location using map integration.
+* **Proof of Work:**
+    * **Geo-Fenced Check-ins:** Employees must be physically present at the location to mark "In Progress."
+    * **Resolution Evidence:** Mandatory "Before & After" photo uploads to close a ticket.
+
+### 🏛️ Administration & Analytics (The Overseer)
+* **Command Center:**
+    * **Heatmap Visualization:** Real-time rendering of problem clusters across city wards to identify infrastructure failures.
+    * **Staff Management:** Monitor employee workload, attendance, and resolution efficiency rates.
+* **Data-Driven Insights:**
+    * **Predictive Analytics:** Charts identifying recurring issues in specific zones.
+    * **SLA Monitoring:** Automated alerts for overdue complaints.
+
+### 🔔 Engagement & Alerts (Shared)
+* **Hyper-Local Alerts:**
+    * Push notifications for scheduled power cuts, water maintenance, or local emergencies in specific wards.
+* **Gamification:**
+    * **Civic Leaderboards:** Points and badges for active citizens ("Guardian of the Ward") and high-performing officers.
+
+---
+
+## 🎯 Next Goals (Roadmap)
+- [ ] **Offline Mode:** Implement `WatermelonDB` for field workers to operate in low-network zones.
+- [ ] **IoT Integration:** Connect with Smart City sensors (e.g., Smart Dustbins) for auto-complaint generation.
+- [ ] **Multilingual Voice Bot:** AI-powered voice interface for reporting issues in regional dialects.
+- [ ] **Blockchain Ledger:** Immutable record-keeping for tender allocations and repair history.
+
+---
+
+### 📂 View Latest Progress
+This branch focuses on the implementation of backend logic, Supabase Realtime integration, and functional components. To view the stable version or contribute:
+
+👉 **Check the [Main Branch](https://github.com/abhinav28birajdar/Municipal_Corporation_complaint_app/tree/master)**
+
+---
+
+### 🔗 Quick Links
+
+* [**View Main Branch Code**](https://github.com/abhinav28birajdar/Municipal_Corporation_complaint_app/tree/master)
+* [**Report a Bug**](https://github.com/abhinav28birajdar/Municipal_Corporation_complaint_app/issues)
+* [**Request a Feature**](https://github.com/abhinav28birajdar/Municipal_Corporation_complaint_app/issues)
+
+<br />
+
+<p align="center">Empowering Citizens, Improving Cities. ❤️</p>
